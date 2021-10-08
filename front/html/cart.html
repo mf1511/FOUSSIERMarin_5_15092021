@@ -48,61 +48,61 @@
           <h1>Votre panier</h1>
           <section class="cart">
             <section id="cart__items">
-             <!--  <article class="cart__item" data-id="{product-ID}">
-                <div class="cart__item__img">
-                  <img src="../images/product01.jpg" alt="Photographie d'un canapé">
-                </div>
-                <div class="cart__item__content">
-                  <div class="cart__item__content__titlePrice">
-                    <h2>Nom du produit</h2>
-                    <p>42,00 €</p>
-                  </div>
-                  <div class="cart__item__content__settings">
-                    <div class="cart__item__content__settings__quantity">
-                      <p>Qté : </p>
-                      <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="42">
-                    </div>
-                    <div class="cart__item__content__settings__delete">
-                      <p class="deleteItem">Supprimer</p>
-                    </div>
-                  </div>
-                </div>
-              </article> -->
+             <!--  <!--<article class="cart__item" data-id="{product-ID}">
+                       <!-- <div class="cart__item__img">
+                         <!-- <img src="../images/product01.jpg" alt="Photographie d'un canapé">
+                        <!--</div>
+                        <!--<div class="cart__item__content">
+                              <!--  <div class="cart__item__content__titlePrice">
+                               <!--   <h2>Nom du produit</h2>
+                               <!--   <p>42,00 €</p>
+                               <!-- </div>
+                               <!-- <div class="cart__item__content__settings">
+                                <!--  <div class="cart__item__content__settings__quantity">
+                                  <!--  <p>Qté : </p>
+                                  <!--  <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="42">
+                                  <!--</div>
+                                  <!--<div class="cart__item__content__settings__delete">
+                                   <!-- <p class="deleteItem">Supprimer</p>
+                                  <!--</div>
+                                <!--</div>
+                        <!--</div>
+              <!--</article> -->
             </section>
             <div class="cart__price">
-              <p>Total (<span id="totalQuantity"><!-- 2 --></span> articles) : <span id="totalPrice"><!-- 84,00 --></span> €</p>
+              <p>Total (<span id="totalQuantity"> <!--<!-- 2 --></span> articles) : <span id="totalPrice"><!-- 84,00 --></span> €</p>
             </div>
             <div class="cart__order">
-              <form method="get" class="cart__order__form">
+              <div class="cart__order__form">
                 <div class="cart__order__form__question">
                   <label for="firstName">Prénom: </label>
-                  <input type="text" name="firstName" id="firstName" required>
+                  <input type="text" name="firstName" id="firstNamee" class="firstNamee" required>
                   <p id="firstNameErrorMsg"><!-- ci est un message d'erreur --></p>
                 </div>
                 <div class="cart__order__form__question">
                   <label for="lastName">Nom: </label>
-                  <input type="text" name="lastName" id="lastName" required>
+                  <input type="text" name="lastName" id="lastNamee" required>
                   <p id="lastNameErrorMsg"></p>
                 </div>
                 <div class="cart__order__form__question">
                   <label for="address">Adresse: </label>
-                  <input type="text" name="address" id="address" required>
+                  <input type="text" name="address" id="addresse" required>
                   <p id="addressErrorMsg"></p>
                 </div>
                 <div class="cart__order__form__question">
                   <label for="city">Ville: </label>
-                  <input type="text" name="city" id="city" required>
+                  <input type="text" name="city" id="citye" required>
                   <p id="cityErrorMsg"></p>
                 </div>
                 <div class="cart__order__form__question">
                   <label for="email">Email: </label>
-                  <input type="email" name="email" id="email" required>
+                  <input type="email" name="email" id="emaile" required>
                   <p id="emailErrorMsg"></p>
                 </div>
                 <div class="cart__order__form__submit">
-                  <input type="submit" value="Commander !" id="order">
+                  <button type="button" value="Commander !" id="ordere" onclick="sendOrder();">Commander !</button>
                 </div>
-              </form>
+              </div>
             </div>
           </section>
         </div>
@@ -132,6 +132,7 @@
         </div>
       </div>
     </footer>
-  <script src="../js/cart.js"></script>
+    <script src="../js/cart.js"></script>
+
   </body>
 </html>
