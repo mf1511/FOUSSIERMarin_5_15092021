@@ -58,20 +58,22 @@ function display (product){
         const panier = localStorage.getItem('panier');
         const quantity = document.getElementById('quantity').value;
         const color = document.getElementById('colors').value;
-        console.log(quantity);
+        let colors = color; 
+
+        let varId = id + '-' + colors;
+
         if (panier == null){
             localStorage.setItem(
                 'panier',
                 JSON.stringify(
                     [
-                        {id: id, quantity: quantity, colors:color, price: price}
+                        {id: varId, quantity: quantity, colors:color, price: price}
                     ]
                 )
             )
         }
         else{
-            var colors = color; 
-            var varId = id + '-' + colors
+            let varId = id + '-' + colors
             if(JSON.parse(panier).filter(e => e.id === varId).length > 0){
                 if(JSON.parse(panier).filter(e => e.id === varId)[0].colors === color){
                     colors = JSON.parse(panier).filter(e => e.id === varId)[0].colors;
@@ -79,18 +81,20 @@ function display (product){
                 else{
                     colors = color;
                 }
+                console.log(JSON.parse(panier).filter(e => e.id === varId)[0].colors);
+
             }
 
             localStorage.setItem(
                 'panier',
                 JSON.stringify(
                     [
-                        ...JSON.parse(localStorage.getItem('panier')).filter((I) => I.id !== varId),
+                        ...JSON.parse(localStorage.getItem('panier')).filter(I => I.id !== varId),
 
                         {
                             id: varId,
                             quantity: JSON.parse(panier).filter(e => e.id === varId).length > 0 ?
-                                      parseInt(JSON.parse(panier).filter(e => e.id === varId)[0].quantity)+1
+                                      parseInt(JSON.parse(panier).filter(e => e.id === varId)[0].quantity)+parseInt(quantity)
                             :quantity, 
                             colors: colors,
                             price: price

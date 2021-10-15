@@ -163,14 +163,18 @@ function sendOrder(){
         }),
         headers: { 'Content-Type': 'application/json; charset=utf-8' },
     })
-    .then((result) => result.json())
-    .then((json) => {
-        console.log(json)
-        localStorage.removeItem('panier')
-        window.location.href = `${window.location.origin}/front/html/confirmation.html?orderId=${json.orderId}`
+
+    .then(function(response) {
+        console.log(response);
+        return response.blob();
       })
 
-      .catch((error) => {
+    .then((result) => {
+        console.log(result);
+    })
+    
+
+    .catch((error) => {
         alert(error)
       })
 }

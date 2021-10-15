@@ -64,6 +64,7 @@ exports.orderProducts = (req, res, next) => {
       Product.findById(productId).then(
         (product) => {
           if (!product) {
+            console.log(product);
             reject('Product not found: ' + productId);
           }
           product.imageUrl = req.protocol + '://' + req.get('host') + '/images/' + product.imageUrl;
@@ -77,6 +78,8 @@ exports.orderProducts = (req, res, next) => {
     });
     queries.push(queryPromise);
   }
+  console.log(queries);
+  
   Promise.all(queries).then(
     (products) => {
       const orderId = uuid();
