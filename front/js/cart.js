@@ -1,6 +1,7 @@
 const APIURL = "http://localhost:3000/api/products";
 
 
+
 addPanier();
 
 async function addPanier(){
@@ -17,7 +18,7 @@ async function addPanier(){
             for (i=0; i < panier.length; i++) { //Tant que panier est supérieur à i
                 const result = await fetch(APIURL + '/' + panier[i].id.split('-')[0]);
                 const article = await result.json();
-                
+                console.log(article._id);
                 const cart__items = document.getElementById("cart__items");
 
                 let cart__item = document.createElement('article');
@@ -31,9 +32,9 @@ async function addPanier(){
 
                 let cart__item__content__settings = document.createElement("div");
                 let cart__item__content__settings__quantity = document.createElement('div');
+                let cart__item__content__settings__color = document.createElement('div');
                 let cart__item__content__settings__p = document.createElement("p");
                 let cart__item__content__settings__input = document.createElement("input");
-                let cart__item__content__settings__button = document.createElement("button");
                 let cart__item__content__settings__delete = document.createElement("div");
                 let cart__item__content__settings__delete__p = document.createElement("button");
 
@@ -45,7 +46,10 @@ async function addPanier(){
                 cart__item__img.appendChild(cart__item__imgimg);
 
                 cart__item__content.appendChild(cart__item__content__titlePrice);
+                cart__item__content.appendChild(cart__item__content__settings__color);
                 cart__item__content.appendChild(cart__item__content__settings);
+                
+
 
                 cart__item__content__titlePrice.appendChild(cart__item__content__titlePrice__h2);
                 cart__item__content__titlePrice.appendChild(cart__item__content__titlePrice__p);
@@ -53,9 +57,9 @@ async function addPanier(){
                 cart__item__content__settings.appendChild(cart__item__content__settings__quantity);
                 cart__item__content__settings.appendChild(cart__item__content__settings__delete);
 
+
                 cart__item__content__settings__quantity.appendChild(cart__item__content__settings__p);
                 cart__item__content__settings__quantity.appendChild(cart__item__content__settings__input);
-                cart__item__content__settings__quantity.appendChild(cart__item__content__settings__button);
 
 
                 cart__item__content__settings__delete.appendChild(cart__item__content__settings__delete__p);
@@ -64,6 +68,7 @@ async function addPanier(){
                 cart__item__img.classList.add('cart__item__img');
                 cart__item__content.classList.add('cart__item__content');
                 cart__item__content__titlePrice.classList.add('cart__item__content__titlePrice');
+                cart__item__content__settings.classList.add('cart__item__content__settings');
                 cart__item__content__settings__quantity.classList.add('cart__item__content__settings__quantity');
                 cart__item__content__settings__input.classList.add('itemQuantity');
                 cart__item__content__settings__delete.classList.add('cart__item__content__settings__delete');
@@ -75,20 +80,52 @@ async function addPanier(){
                 
 
 
+                cart__item.setAttribute('data-id', article._id);
+                cart__item.setAttribute('data-colors', panier[i].colors);
 
 
-                cart__item__imgimg.setAttribute('alt', "");
-                cart__item__imgimg.alt = article.altTxt;
+                cart__item__imgimg.setAttribute('alt', article.altTxt);
                 
                 cart__item__imgimg.src = article.imageUrl;
                 cart__item__content__titlePrice__h2.innerHTML  = article.name;
                 cart__item__content__titlePrice__p.innerHTML = article.price + ' $';
+                cart__item__content__settings__color.innerHTML = 'Couleur : ' + panier[i].colors;
                 cart__item__content__settings__p.innerHTML = 'Qté : ' + panier[i].quantity;
-                cart__item__content__settings__button.innerHTML = 'Actualiser la quantité';
                 cart__item__content__settings__delete__p.innerHTML = 'Supprimer';
                 cart__item__content__settings__delete__p.setAttribute('onclick', "vider('"+panier[i].id+"');")
 
+
+                let colors = panier[i].colors; 
                 
+                let varId = panier[i].id;      
+                console.log(panier[i].id);
+                cart__item__content__settings__input.addEventListener('change', function (event) {
+                    console.log(event.target.value);
+                    let quantity = document.getElementsByClassName('itemQuantity');
+                    
+                    
+                    localStorage.setItem(
+                        'panier',
+                        JSON.stringify(
+                            [
+                                ...JSON.parse(localStorage.getItem('panier')).filter(I => I.id !== varId),
+        
+                                {
+                                    id: varId,
+                                    quantity: JSON.parse(panier).filter(e => e.id === varId).length > 0 ?
+                                              parseInt(JSON.parse(panier).filter(e => e.id === varId)[0].quantity)+parseInt(quantity)
+                                    :event.target.value, 
+                                    colors: colors,
+                                    price: price
+                                }
+                            ]
+                        )
+        
+                    )
+
+                });
+
+
 
 
                 const cartTotal = document.getElementById('totalPrice');
@@ -144,9 +181,6 @@ var order = document.getElementById("ordere");
 
 
 function sendOrder(){
-   
-
-
     const orderData = {
         firstName:firstName.value ||"",
         lastName:lastName.value ||"",
@@ -164,19 +198,18 @@ function sendOrder(){
         headers: { 'Content-Type': 'application/json; charset=utf-8' },
     })
 
-    .then(function(response) {
-        console.log(response);
-        return response.blob();
+    .then((result) => result.json())
+    .then((json) => {
+        console.log(json)
+        localStorage.removeItem('panier')
+        window.location.href = `${window.location.origin}/front/html/confirmation.html?orderId=${json.orderId}`
       })
 
-    .then((result) => {
-        console.log(result);
-    })
-    
-
-    .catch((error) => {
+      .catch((error) => {
         alert(error)
       })
+      console.log(article.id);
+
 }
 
 

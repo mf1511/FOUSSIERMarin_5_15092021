@@ -31,10 +31,12 @@ function display (product){
     item__imgimg.setAttribute('alt', "");
     item__imgimg.alt = product.altTxt;
 
+    
 
     item__imgimg.src = product.imageUrl;
     title__title.innerHTML = product.name;
     price.innerHTML = product.price;
+    cart__item = product
     description.innerHTML = product.description;
 
     let atc = document.getElementById('addToCart');
@@ -61,7 +63,7 @@ function display (product){
         let colors = color; 
 
         let varId = id + '-' + colors;
-
+        console.log(id);
         if (panier == null){
             localStorage.setItem(
                 'panier',
