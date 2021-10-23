@@ -98,36 +98,43 @@ async function addPanier(){
                 let colors = panier[i].colors; 
                 
                 let varId = panier[i].id;      
-                console.log(panier[i].id);
+
                 cart__item__content__settings__input.addEventListener('change', function (event) {
-                    console.log(event.target.value);
-                    let quantity = document.getElementsByClassName('itemQuantity');
+
+                let quantity = document.getElementsByClassName('itemQuantity');
+                
+                cart__item__content__settings__p.innerHTML = 'Qté : ' + event.target.value ;
+
                     
-                    
-                    localStorage.setItem(
-                        'panier',
+                const cartTotal = document.getElementById('totalPrice');
+                const total = JSON.parse(localStorage.getItem('panier')).reduce(function(a, b){
+                        return a + (parseInt(b.price) * parseInt(event.target.value))
+                },0);
+                console.log(total);
+
+                cartTotal.innerHTML = total;
+                
+                
+                localStorage.setItem(
+                    'panier',
                         JSON.stringify(
                             [
                                 ...JSON.parse(localStorage.getItem('panier')).filter(I => I.id !== varId),
-        
                                 {
                                     id: varId,
-                                    quantity: JSON.parse(panier).filter(e => e.id === varId).length > 0 ?
-                                              parseInt(JSON.parse(panier).filter(e => e.id === varId)[0].quantity)+parseInt(quantity)
-                                    :event.target.value, 
+                                    quantity: parseInt(event.target.value), 
                                     colors: colors,
-                                    price: price
+                                    price: article.price * parseInt(event.target.value)
                                 }
                             ]
                         )
-        
-                    )
-
+                    ) 
                 });
 
 
 
-
+            
+                
                 const cartTotal = document.getElementById('totalPrice');
                 const total = JSON.parse(localStorage.getItem('panier')).reduce(function(a, b){
                     if(b.quantity){ 

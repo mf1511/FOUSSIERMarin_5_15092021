@@ -69,21 +69,21 @@ function display (product){
                 'panier',
                 JSON.stringify(
                     [
-                        {id: varId, quantity: quantity, colors:color, price: price}
+                        {id: id, reference: varId, quantity: quantity, colors:color, price: price}
                     ]
                 )
             )
         }
         else{
             let varId = id + '-' + colors
-            if(JSON.parse(panier).filter(e => e.id === varId).length > 0){
-                if(JSON.parse(panier).filter(e => e.id === varId)[0].colors === color){
-                    colors = JSON.parse(panier).filter(e => e.id === varId)[0].colors;
+            if(JSON.parse(panier).filter(e => e.reference === varId).length > 0){
+                if(JSON.parse(panier).filter(e => e.reference === varId)[0].colors === color){
+                    colors = JSON.parse(panier).filter(e => e.reference === varId)[0].colors;
                 }
                 else{
                     colors = color;
                 }
-                console.log(JSON.parse(panier).filter(e => e.id === varId)[0].colors);
+                console.log(JSON.parse(panier).filter(e => e.reference === varId)[0].colors);
 
             }
 
@@ -91,12 +91,12 @@ function display (product){
                 'panier',
                 JSON.stringify(
                     [
-                        ...JSON.parse(localStorage.getItem('panier')).filter(I => I.id !== varId),
+                        ...JSON.parse(localStorage.getItem('panier')).filter(I => I.reference !== varId),
 
                         {
-                            id: varId,
-                            quantity: JSON.parse(panier).filter(e => e.id === varId).length > 0 ?
-                                      parseInt(JSON.parse(panier).filter(e => e.id === varId)[0].quantity)+parseInt(quantity)
+                            id: id, reference: varId,
+                            quantity: JSON.parse(panier).filter(e => e.reference === varId).length > 0 ?
+                                      parseInt(JSON.parse(panier).filter(e => e.reference === varId)[0].quantity)+parseInt(quantity)
                             :quantity, 
                             colors: colors,
                             price: price
