@@ -4,3 +4,5 @@ const idUrl = urlParams.searchParams.get('orderId');
 const validation = document.getElementById("orderId");
 
 validation.innerHTML = idUrl;
+
+console.log(idUrl);

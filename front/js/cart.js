@@ -18,7 +18,6 @@ async function addPanier(){
             for (i=0; i < panier.length; i++) { //Tant que panier est supérieur à i
                 const result = await fetch(APIURL + '/' + panier[i].id.split('-')[0]);
                 const article = await result.json();
-                console.log(article._id);
                 const cart__items = document.getElementById("cart__items");
 
                 let cart__item = document.createElement('article');
@@ -101,35 +100,60 @@ async function addPanier(){
 
                 cart__item__content__settings__input.addEventListener('change', function (event) {
 
-                let quantity = document.getElementsByClassName('itemQuantity');
-                
-                cart__item__content__settings__p.innerHTML = 'Qté : ' + event.target.value ;
+                            let quantity = document.getElementsByClassName('itemQuantity');
+                            
+                            cart__item__content__settings__p.innerHTML = 'Qté : ' + event.target.value ;
 
-                    
-                const cartTotal = document.getElementById('totalPrice');
-                const total = JSON.parse(localStorage.getItem('panier')).reduce(function(a, b){
-                        return a + (parseInt(b.price) * parseInt(event.target.value))
-                },0);
-                console.log(total);
+            
+                            const cartTotal = document.getElementById('totalPrice');
+                            const total = JSON.parse(localStorage.getItem('panier')).reduce(function(a, b){
+                                    return a + (parseInt(b.price) * parseInt(event.target.value))
+                            },0);
+                            cartTotal.innerHTML = total;
+                            
+                            localStorage.setItem(
+                                'panier',
+                                    JSON.stringify(
+                                        [
+                                            ...JSON.parse(localStorage.getItem('panier')).filter(I => I.id !== varId),
+                                            {
+                                                id: varId,
+                                                quantity: parseInt(event.target.value), 
+                                                colors: colors,
+                                                price: article.price * parseInt(event.target.value)
+                                            }
+                                        ]
+                                    )
+                                ) 
 
-                cartTotal.innerHTML = total;
-                
-                
-                localStorage.setItem(
-                    'panier',
-                        JSON.stringify(
-                            [
-                                ...JSON.parse(localStorage.getItem('panier')).filter(I => I.id !== varId),
-                                {
-                                    id: varId,
-                                    quantity: parseInt(event.target.value), 
-                                    colors: colors,
-                                    price: article.price * parseInt(event.target.value)
+
+
+                            const cartQty = document.getElementById('totalQuantity');
+                            cartQty.innerHTML = totalQty();
+                            
+                            function totalQty(){
+                                if (localStorage.getItem('panier') !== null){
+                                    const panierQty = localStorage.getItem('panier');
+                                    const total = JSON.parse(panierQty).reduce(function(a, b){
+                                        if(b.quantity){ 
+                                            return parseInt(a) + parseInt(event.target.value );
+                                        }
+                                    },0);
+                                    return total;
                                 }
-                            ]
-                        )
-                    ) 
-                });
+                                return 0;
+                            }
+                            
+
+
+
+
+
+
+
+                            });
+
+
 
 
 
@@ -156,7 +180,6 @@ async function addPanier(){
 
 const vider = (id) => {
     const data = JSON.parse(localStorage.getItem("panier"))
-    console.log(data.filter(i => i.id !== id));
     localStorage.setItem("panier", JSON.stringify(data.filter(i => i.id !== id)))
     window.location.reload()
 }
@@ -179,49 +202,77 @@ function totalQty(){
     return 0;
 }
 
-var firstName = document.getElementById("firstNamee");
-var lastName = document.getElementById("lastNamee");
-var address = document.getElementById("addresse");
-var city = document.getElementById("citye");
-var email = document.getElementById("emaile");
-var order = document.getElementById("ordere");
 
-
-function sendOrder(){
-    const orderData = {
-        firstName:firstName.value ||"",
-        lastName:lastName.value ||"",
-        address:address.value ||"",
-        city:city.value ||"",
-        email:email.value ||"",        
-    };
-    console.log(JSON.parse(localStorage.getItem('panier')).map((e) => e.id));
-    fetch(APIURL + '/order', {
-        method:"POST",
-        body: JSON.stringify({
-            contact:orderData, 
-            products:JSON.parse(localStorage.getItem('panier')).map((e) => e.id)
-        }),
-        headers: { 'Content-Type': 'application/json; charset=utf-8' },
+function validateForm() {
+    let buttonValidation = document.getElementById('order');
+     buttonValidation.addEventListener('click', function () { 
+    
     })
-
-    .then((result) => result.json())
-    .then((json) => {
-        console.log(json)
-        localStorage.removeItem('panier')
-        window.location.href = `${window.location.origin}/front/html/confirmation.html?orderId=${json.orderId}`
-      })
-
-      .catch((error) => {
-        alert(error)
-      })
-      console.log(article.id);
-
 }
 
 
 
+    function sendOrder(){
+        var firstName = document.getElementById("firstName");
+        var lastName = document.getElementById("lastName");
+        var address = document.getElementById("address");
+        var city = document.getElementById("city");
+        var email = document.getElementById("email");
+
+        var regFirstName = document.getElementById("firstName").value;
+        var regLastName = document.getElementById("lastName").value;
+        var regAddress = document.getElementById("address").value;
+        var regCity = document.getElementById("city").value;
+        var regEmail = document.getElementById("email").value;
+
+        const emailRegex = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/
+        const namesRegex = /^[a-zA-Z]+$/
+
+        if      (!(
+            namesRegex.test(regFirstName)
+            && namesRegex.test(regLastName)
+            && emailRegex.test(regEmail)
+            && regAddress.length > 6
+            && regCity.length > 1
+            ))  
+                {
+                    alert("Veuillez remplir les champs correctements avant de procéder au paiemenhhht")
+                    return false;
+                } 
 
 
 
-    
+        const orderData = {
+            firstName:firstName.value ||"",
+            lastName:lastName.value ||"",
+            address:address.value ||"",
+            city:city.value ||"",
+            email:email.value ||"",        
+        };
+        // console.log(JSON.parse(localStorage.getItem('panier')).map((e) => e.id));
+        fetch(APIURL + '/order', {
+            method:"POST",
+            body: JSON.stringify({
+                contact:orderData, 
+                products:JSON.parse(localStorage.getItem('panier')).map((e) => e.id)
+            }),
+            headers: { 'Content-Type': 'application/json; charset=utf-8' },
+        })
+        
+        .then((result) => result.json())
+        .then((json) => {
+            localStorage.removeItem('panier')
+            window.location.href = `${window.location.origin}/front/html/confirmation.html?orderId=${json.orderId}`
+            
+        })
+        
+
+        .catch((error) => {
+            alert(error)
+        })
+        
+
+    }
+
+
+
