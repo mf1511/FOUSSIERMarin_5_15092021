@@ -91,7 +91,7 @@ async function addPanier(){
                 cart__item__content__settings__color.innerHTML = 'Couleur : ' + panier[i].colors;
                 cart__item__content__settings__p.innerHTML = 'Qté : ' + panier[i].quantity;
                 cart__item__content__settings__delete__p.innerHTML = 'Supprimer';
-                cart__item__content__settings__delete__p.setAttribute('onclick', "vider('"+panier[i].id+"');")
+                cart__item__content__settings__delete__p.setAttribute('onclick', "vider('"+panier[i].id+"', '"+panier[i].colors+"');")
 
 
                 let colors = panier[i].colors; 
@@ -105,22 +105,19 @@ async function addPanier(){
                             cart__item__content__settings__p.innerHTML = 'Qté : ' + event.target.value ;
 
             
-                            const cartTotal = document.getElementById('totalPrice');
-                            const total = JSON.parse(localStorage.getItem('panier')).reduce(function(a, b){
-                                    return a + (parseInt(b.price) * parseInt(event.target.value))
-                            },0);
-                            cartTotal.innerHTML = total;
                             
+                            let idcart = varId + '-' + colors;
                             localStorage.setItem(
                                 'panier',
                                     JSON.stringify(
                                         [
-                                            ...JSON.parse(localStorage.getItem('panier')).filter(I => I.id !== varId),
+                                            ...JSON.parse(localStorage.getItem('panier')).filter(i => i.reference !== idcart),
                                             {
-                                                id: varId,
+                                                id: varId, 
+                                                reference: idcart,
                                                 quantity: parseInt(event.target.value), 
                                                 colors: colors,
-                                                price: article.price * parseInt(event.target.value)
+                                                price: article.price
                                             }
                                         ]
                                     )
@@ -136,7 +133,7 @@ async function addPanier(){
                                     const panierQty = localStorage.getItem('panier');
                                     const total = JSON.parse(panierQty).reduce(function(a, b){
                                         if(b.quantity){ 
-                                            return parseInt(a) + parseInt(event.target.value );
+                                            return parseInt(a) + parseInt(b.quantity);
                                         }
                                     },0);
                                     return total;
@@ -144,21 +141,19 @@ async function addPanier(){
                                 return 0;
                             }
                             
+                            const cartTotal = document.getElementById('totalPrice');
+                             const total = JSON.parse(localStorage.getItem('panier')).reduce(function(a, b){
+                            if(b.quantity){ 
+                                console.log(b.quantity);
+                                console.log(b.price);
 
 
+                                return parseInt(a) + (parseInt(b.price) * parseInt(b.quantity))
+                            }
+                                },0);
+                            cartTotal.innerHTML = total;
+                });
 
-
-
-
-
-                            });
-
-
-
-
-
-            
-                
                 const cartTotal = document.getElementById('totalPrice');
                 const total = JSON.parse(localStorage.getItem('panier')).reduce(function(a, b){
                     if(b.quantity){ 
@@ -172,19 +167,14 @@ async function addPanier(){
     catch(error){ 
         alert(error)
     }
-
-
-    
 }
     
-
-const vider = (id) => {
+const vider = (id, colors) => {
+    let varId = id + '-' + colors;
     const data = JSON.parse(localStorage.getItem("panier"))
-    localStorage.setItem("panier", JSON.stringify(data.filter(i => i.id !== id)))
+    localStorage.setItem("panier", JSON.stringify(data.filter(i => i.reference !== varId)))
     window.location.reload()
 }
-
-
 
 const cartQty = document.getElementById('totalQuantity');
 cartQty.innerHTML = totalQty();
@@ -202,14 +192,12 @@ function totalQty(){
     return 0;
 }
 
-
 function validateForm() {
     let buttonValidation = document.getElementById('order');
      buttonValidation.addEventListener('click', function () { 
     
     })
 }
-
 
 
     function sendOrder(){
