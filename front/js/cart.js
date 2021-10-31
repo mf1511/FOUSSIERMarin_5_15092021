@@ -1,25 +1,36 @@
-const APIURL = "http://localhost:3000/api/products";
+const APIURL = "http://localhost:3000/api/products"; // Stockage du lien API dans une constante
 
+// Fonction qui calcule la quantité totale de produit présents dans le panier
+function totalQty(){
+    if (localStorage.getItem('panier') !== null){
+        const panierQty = localStorage.getItem('panier');
+        const total = JSON.parse(panierQty).reduce(function(a, b){
+            if(b.quantity){ 
+                return parseInt(a) + parseInt(b.quantity);
+            }
+        },0);
+        return total;
+    }
+    return 0;
+}
 
+addPanier(); // Appel de la fonction qui ajoute au panier
 
-addPanier();
-
-async function addPanier(){
-
+async function addPanier(){ // Création de la fonction nécessaire à l'ajout des produits au panier
     let panier = [];
-
     try{
         if (localStorage.getItem('panier')){
             panier = JSON.parse(localStorage.getItem('panier'));
         }
-
         if (panier.length >= 1){
             localStorage.getItem('panier', JSON.stringify(panier));
             for (i=0; i < panier.length; i++) { //Tant que panier est supérieur à i
-                const result = await fetch(APIURL + '/' + panier[i].id.split('-')[0]);
+                let split = panier[i].id.split('-')[0]; // Récupération de l'ID par séparation (split) puis par récup du premier élément ([0])
+                const result = await fetch(APIURL + '/' + split);
                 const article = await result.json();
                 const cart__items = document.getElementById("cart__items");
 
+                // Création dynamique des éléments du panier
                 let cart__item = document.createElement('article');
                 let cart__item__img = document.createElement('div');
                 let cart__item__imgimg = document.createElement("img"); 
@@ -41,26 +52,16 @@ async function addPanier(){
 
                 cart__item.appendChild(cart__item__img);
                 cart__item.appendChild(cart__item__content);
-
                 cart__item__img.appendChild(cart__item__imgimg);
-
                 cart__item__content.appendChild(cart__item__content__titlePrice);
                 cart__item__content.appendChild(cart__item__content__settings__color);
                 cart__item__content.appendChild(cart__item__content__settings);
-                
-
-
                 cart__item__content__titlePrice.appendChild(cart__item__content__titlePrice__h2);
                 cart__item__content__titlePrice.appendChild(cart__item__content__titlePrice__p);
-
                 cart__item__content__settings.appendChild(cart__item__content__settings__quantity);
                 cart__item__content__settings.appendChild(cart__item__content__settings__delete);
-
-
                 cart__item__content__settings__quantity.appendChild(cart__item__content__settings__p);
                 cart__item__content__settings__quantity.appendChild(cart__item__content__settings__input);
-
-
                 cart__item__content__settings__delete.appendChild(cart__item__content__settings__delete__p);
 
                 cart__item.classList.add('cart__item');
@@ -75,14 +76,8 @@ async function addPanier(){
 
                 cart__item__content__settings__quantity.setAttribute('id', 'cart__item__content__settings__p');
                 cart__item__content__settings__input.setAttribute('id', 'itemQuantity');
-
-                
-
-
                 cart__item.setAttribute('data-id', article._id);
                 cart__item.setAttribute('data-colors', panier[i].colors);
-
-
                 cart__item__imgimg.setAttribute('alt', article.altTxt);
                 
                 cart__item__imgimg.src = article.imageUrl;
@@ -93,74 +88,55 @@ async function addPanier(){
                 cart__item__content__settings__delete__p.innerHTML = 'Supprimer';
                 cart__item__content__settings__delete__p.setAttribute('onclick', "vider('"+panier[i].id+"', '"+panier[i].colors+"');")
 
-
                 let colors = panier[i].colors; 
-                
                 let varId = panier[i].id;      
 
-                cart__item__content__settings__input.addEventListener('change', function (event) {
+                // Début fonction changement quantité
+                cart__item__content__settings__input.addEventListener('change', function (event) { // Création de la fonction de modification de la quantité d'un produit
+                    let quantity = document.getElementsByClassName('itemQuantity');
+                    cart__item__content__settings__p.innerHTML = 'Qté : ' + event.target.value ; //Changement de la quantité au niveau HTML
+                    let idcart = varId + '-' + colors;
+                    localStorage.setItem( // Changement de la quantité au niveau du localStorage
+                        'panier',
+                            JSON.stringify(
+                                [
+                                    ...JSON.parse(localStorage.getItem('panier')).filter(i => i.reference !== idcart),
+                                    {
+                                        id: varId, 
+                                        reference: idcart,
+                                        quantity: parseInt(event.target.value), 
+                                        colors: colors,
+                                        price: article.price
+                                    }
+                                ]
+                            )
+                        ) 
+                    const cartQty = document.getElementById('totalQuantity');
+                    cartQty.innerHTML = totalQty(); // Changement de la quantité totale de produits au niveau HTML
+                    
+                    totalQty() // Changement de la quantité totale de produits au niveau du localStorage
+                    
+                    const cartTotal = document.getElementById('totalPrice');
+                    const total = JSON.parse(localStorage.getItem('panier')).reduce(function(a, b){  // Changement de prix total au niveau du localStorage
+                        if(b.quantity){ 
+                            console.log(b.quantity);
+                            console.log(b.price);
 
-                            let quantity = document.getElementsByClassName('itemQuantity');
-                            
-                            cart__item__content__settings__p.innerHTML = 'Qté : ' + event.target.value ;
-
-            
-                            
-                            let idcart = varId + '-' + colors;
-                            localStorage.setItem(
-                                'panier',
-                                    JSON.stringify(
-                                        [
-                                            ...JSON.parse(localStorage.getItem('panier')).filter(i => i.reference !== idcart),
-                                            {
-                                                id: varId, 
-                                                reference: idcart,
-                                                quantity: parseInt(event.target.value), 
-                                                colors: colors,
-                                                price: article.price
-                                            }
-                                        ]
-                                    )
-                                ) 
-
-
-
-                            const cartQty = document.getElementById('totalQuantity');
-                            cartQty.innerHTML = totalQty();
-                            
-                            function totalQty(){
-                                if (localStorage.getItem('panier') !== null){
-                                    const panierQty = localStorage.getItem('panier');
-                                    const total = JSON.parse(panierQty).reduce(function(a, b){
-                                        if(b.quantity){ 
-                                            return parseInt(a) + parseInt(b.quantity);
-                                        }
-                                    },0);
-                                    return total;
-                                }
-                                return 0;
-                            }
-                            
-                            const cartTotal = document.getElementById('totalPrice');
-                             const total = JSON.parse(localStorage.getItem('panier')).reduce(function(a, b){
-                            if(b.quantity){ 
-                                console.log(b.quantity);
-                                console.log(b.price);
-
-
-                                return parseInt(a) + (parseInt(b.price) * parseInt(b.quantity))
-                            }
-                                },0);
-                            cartTotal.innerHTML = total;
+                            return parseInt(a) + (parseInt(b.price) * parseInt(b.quantity))
+                        }
+                            },0);
+                    cartTotal.innerHTML = total; // Changement de prix total au niveau HTML
                 });
+                // Fin fonction changement quantité
+
 
                 const cartTotal = document.getElementById('totalPrice');
-                const total = JSON.parse(localStorage.getItem('panier')).reduce(function(a, b){
+                const total = JSON.parse(localStorage.getItem('panier')).reduce(function(a, b){ // Changement de prix total au niveau du localStorage
                     if(b.quantity){ 
                         return a + (parseInt(b.price) * parseInt(b.quantity))
                     }
                 },0);
-                cartTotal.innerHTML = total;
+                cartTotal.innerHTML = total; // Changement de prix total au niveau HTML
             }
         }
     }
@@ -169,7 +145,7 @@ async function addPanier(){
     }
 }
     
-const vider = (id, colors) => {
+const vider = (id, colors) => {  // Fonction qui sert à supprimer un produit lors du clic sur le bouton supprimer
     let varId = id + '-' + colors;
     const data = JSON.parse(localStorage.getItem("panier"))
     localStorage.setItem("panier", JSON.stringify(data.filter(i => i.reference !== varId)))
@@ -177,90 +153,60 @@ const vider = (id, colors) => {
 }
 
 const cartQty = document.getElementById('totalQuantity');
-cartQty.innerHTML = totalQty();
+cartQty.innerHTML = totalQty(); // Changement de la quantité totale de produits au niveau HTML
 
-function totalQty(){
-    if (localStorage.getItem('panier') !== null){
-        const panierQty = localStorage.getItem('panier');
-        const total = JSON.parse(panierQty).reduce(function(a, b){
-            if(b.quantity){ 
-                return parseInt(a) + parseInt(b.quantity);
-            }
-        },0);
-        return total;
-    }
-    return 0;
-}
+totalQty() // Changement de la quantité totale de produits au niveau du localStorage
 
-function validateForm() {
-    let buttonValidation = document.getElementById('order');
-     buttonValidation.addEventListener('click', function () { 
-    
+function sendOrder(){ // Envoie des données panier et utilisateur pour confirmation de commande
+    var firstName = document.getElementById("firstName");
+    var lastName = document.getElementById("lastName");
+    var address = document.getElementById("address");
+    var city = document.getElementById("city");
+    var email = document.getElementById("email");
+
+    var regFirstName = document.getElementById("firstName").value;
+    var regLastName = document.getElementById("lastName").value;
+    var regAddress = document.getElementById("address").value;
+    var regCity = document.getElementById("city").value;
+    var regEmail = document.getElementById("email").value;
+
+    const emailRegex = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/
+    const namesRegex = /^[a-zA-Z]+$/
+
+    // Mise en place des REGEX pour valider les données rentrées par l'utilisateur
+    if      (!(             
+        namesRegex.test(regFirstName)
+        && namesRegex.test(regLastName)
+        && emailRegex.test(regEmail)
+        && regAddress.length > 6
+        && regCity.length > 1
+        ))  
+            {
+                alert("Veuillez remplir les champs correctements avant de procéder au paiemenhhht")
+                return false;
+            } 
+
+    const orderData = {
+        firstName:firstName.value ||"",
+        lastName:lastName.value ||"",
+        address:address.value ||"",
+        city:city.value ||"",
+        email:email.value ||"",        
+    };
+    fetch(APIURL + '/order', { // Envoie du requête POST avec les datas nécessaires à la confirmation de la commande
+        method:"POST",
+        body: JSON.stringify({
+            contact:orderData, 
+            products:JSON.parse(localStorage.getItem('panier')).map((e) => e.id)
+        }),
+        headers: { 'Content-Type': 'application/json; charset=utf-8' },
+    })
+    .then((result) => result.json())
+    .then((json) => {
+        localStorage.removeItem('panier') // Suppression du localStorage lors de l'envoie de la commande
+        window.location.href = `${window.location.origin}/front/html/confirmation.html?orderId=${json.orderId}` // Redirection vers l'URL avec l'ID        
+    })
+    .catch((error) => {
+        alert(error)
     })
 }
-
-
-    function sendOrder(){
-        var firstName = document.getElementById("firstName");
-        var lastName = document.getElementById("lastName");
-        var address = document.getElementById("address");
-        var city = document.getElementById("city");
-        var email = document.getElementById("email");
-
-        var regFirstName = document.getElementById("firstName").value;
-        var regLastName = document.getElementById("lastName").value;
-        var regAddress = document.getElementById("address").value;
-        var regCity = document.getElementById("city").value;
-        var regEmail = document.getElementById("email").value;
-
-        const emailRegex = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/
-        const namesRegex = /^[a-zA-Z]+$/
-
-        if      (!(
-            namesRegex.test(regFirstName)
-            && namesRegex.test(regLastName)
-            && emailRegex.test(regEmail)
-            && regAddress.length > 6
-            && regCity.length > 1
-            ))  
-                {
-                    alert("Veuillez remplir les champs correctements avant de procéder au paiemenhhht")
-                    return false;
-                } 
-
-
-
-        const orderData = {
-            firstName:firstName.value ||"",
-            lastName:lastName.value ||"",
-            address:address.value ||"",
-            city:city.value ||"",
-            email:email.value ||"",        
-        };
-        // console.log(JSON.parse(localStorage.getItem('panier')).map((e) => e.id));
-        fetch(APIURL + '/order', {
-            method:"POST",
-            body: JSON.stringify({
-                contact:orderData, 
-                products:JSON.parse(localStorage.getItem('panier')).map((e) => e.id)
-            }),
-            headers: { 'Content-Type': 'application/json; charset=utf-8' },
-        })
-        
-        .then((result) => result.json())
-        .then((json) => {
-            localStorage.removeItem('panier')
-            window.location.href = `${window.location.origin}/front/html/confirmation.html?orderId=${json.orderId}`
-            
-        })
-        
-
-        .catch((error) => {
-            alert(error)
-        })
-        
-
-    }
-
-
-

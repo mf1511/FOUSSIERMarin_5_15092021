@@ -1,23 +1,21 @@
-const APIURL = "http://localhost:3000/api/products";
-
-const urlParams = new URL(window.location);
-const idUrl = urlParams.searchParams.get('id');
-
+const APIURL = "http://localhost:3000/api/products"; // Stockage du lien de l'API dans une constante
+const urlParams = new URL(window.location); // Récupération de l'URL de la page produit
+const idUrl = urlParams.searchParams.get('id'); // Récupération de l'ID présente dans l'URL de la page produit
 
 getProduct(idUrl);
 
-async function getProduct(product){
+async function getProduct(product){ // Récupération du produit auprès de l'API par méthode fetch
     try{
-        const result = await fetch(APIURL + '/' + product);
+        const result = await fetch(APIURL + '/' + product); 
         const article = await result.json();
-        display(article);
+        display(article); // Appel de la fonction display pour créer le produit dynamiquement
     }
     catch(error){
         console.error(error);
     }
 }
 
-function display (product){
+function display (product){ // Création des produits par modulation dynamique du DOM
     const item__img = document.getElementById("item__img");
     const title__title = document.getElementById("title");
     const price = document.getElementById("price");
@@ -27,11 +25,8 @@ function display (product){
 
     item__img.appendChild(item__imgimg);
 
-
     item__imgimg.setAttribute('alt', "");
     item__imgimg.alt = product.altTxt;
-
-    
 
     item__imgimg.src = product.imageUrl;
     title__title.innerHTML = product.name;
@@ -43,7 +38,7 @@ function display (product){
 
     atc.onclick = (e) => {
         addTC(e, product._id, product.price);
-}
+    }
 
     product.colors.forEach(element => {
         const colors = document.getElementById('colors');
@@ -53,15 +48,12 @@ function display (product){
     });
 }
 
-
-
-    function addTC (e, id, price){
-        e.preventDefault();
+    function addTC (e, id, price){ // Création de la fonction d'ajout au panier
+        e.preventDefault(); // On indique à la fonction de ne pas se lancer par défault à l'ouverture de la page
         const panier = localStorage.getItem('panier');
         const quantity = document.getElementById('quantity').value;
         const color = document.getElementById('colors').value;
         let colors = color; 
-
         let varId = id + '-' + colors;
         console.log(id);
         if (panier == null){
@@ -83,10 +75,7 @@ function display (product){
                 else{
                     colors = color;
                 }
-                console.log(JSON.parse(panier).filter(e => e.reference === varId)[0].colors);
-
             }
-
             localStorage.setItem(
                 'panier',
                 JSON.stringify(
@@ -103,8 +92,6 @@ function display (product){
                         }
                     ]
                 )
-
             )
         }
-
     }

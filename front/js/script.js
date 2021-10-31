@@ -1,27 +1,21 @@
-const APIURL = "http://localhost:3000/api/products";
+const APIURL = "http://localhost:3000/api/products"; // Stockage du lien API dans une constante
 
 getProduct();
 
-async function getProduct(){
+async function getProduct(){ // Récupération des produits auprès de l'API par méthode fetch
     try{
         const result = await fetch(APIURL);
         const article = await result.json();
-
         article.forEach(element => {
-            display(element)
+            display(element) // Appel de la fonction display pour créer les produits dynamiquement
         });
-
-        console.log(article);
     }
-
     catch(error){
         console.error(error);
     }
-    
 }
 
-
-function display(product){
+function display(product){ // Affichage des produits par modulation dynamique du DOM 
     const items = document.getElementById("items");
 
     let a = document.createElement('a');
@@ -41,7 +35,8 @@ function display(product){
 
     img.setAttribute('alt', "");
     
-    a.href = window.location.origin + "/front/html/product.html?id=" + product._id; 
+
+    a.href = window.location.origin + "/front/html/product.html?id=" + product._id; // Redirection vers le produit choisi via son ID respective
     article.id = product._id;
     h3.innerHTML = product.name;
     img.src = product.imageUrl;
